@@ -1,0 +1,65 @@
+---
+- hosts: rpmbuilders
+  gather_facts: no
+  user: root
+  tasks:
+  - name: wget
+    yum: pkg=wget state=latest
+  - name: rpm-build
+    yum: pkg=rpm-build state=latest
+  - name: java-1.6.0-openjdk-devel
+    yum: pkg=java-1.6.0-openjdk-devel state=latest
+  - name: tomcat6
+    yum: pkg=tomcat6 state=latest
+  - name: screen
+    yum: pkg=screen state=latest
+  - name: vim-enhanced
+    yum: pkg=vim-enhanced state=latest
+  - name: gcc
+    yum: pkg=gcc state=latest
+  - name: genisoimage
+    yum: pkg=genisoimage state=latest
+  - name: ws-commons-util
+    yum: pkg=ws-commons-util state=latest
+  - name: glibc-devel
+    yum: pkg=glibc-devel state=latest
+  - name: MySQL-python
+    yum: pkg=MySQL-python state=latest
+# Maven installation section
+  - name: Create /opt dir
+    file: path=/opt state=directory
+  - name: download Maven3
+    get_url: dest=/opt/maven3.tar.gz url=http://mirror.catn.com/pub/apache/maven/maven-3/3.1.1/binaries/apache-maven-3.1.1-bin.tar.gz
+  - name: Unpack Maven3
+    action: command creates=/opt/maven chdir=/opt tar zxvf /opt/maven3.tar.gz
+  - name: Create Maven3 directory link
+    file: path=/opt/maven src=/opt/apache-maven-3.1.1 state=link
+  - name: Set mvn link
+    action: command update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 1 
+# CloudStack source tarball download and manipulation
+  - name: Get KEYS
+    get_url: dest=/opt/KEYS url=http://www.apache.org/dist/cloudstack/KEYS
+  - name: Get CloudStack
+    get_url: dest=/opt/cs.tar.bz2 url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2 
+  - name: Get md5
+    get_url: dest=/opt/cs.tar.bz2.md5 url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2.md5
+  - name: Get sha
+    get_url: dest=/opt/cs.tar.bz2.sha256 url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2.sha
+  - name: Get sigs
+    get_url: dest=/opt/cs.tar.bz2.asc url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2.asc
+  - name: import KEYS
+    shell: gpg --import /opt/KEYS
+  - name: verify sigs
+    shell: gpg --verify /opt/cs.tar.bz2.asc
+# Below isn't working because of hash formatting, not an ansible problem.
+#  - name: verify md5
+#    shell: chdir=/opt md5sum -c ./cs.tar.bz2.md5
+#  - name: verify sha256sum
+#    shell: chdir=/opt sha256sum -c ./cs.tar.bz2.sha256 
+  - name: unpack CloudStack
+    action: command creates=/opt/apache-cloudstack chdir=/opt tar xjvf /opt/cs.tar.bz2
+    
+# TODO    
+#  - name: Get the noredist jars
+#  - name: Install the deps
+#  - name: run package.sh for nonoss
