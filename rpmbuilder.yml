@@ -2,6 +2,8 @@
 - hosts: rpmbuilders
   gather_facts: no
   user: root
+  vars:
+    acs_ver: 4.2.0
   tasks:
   - name: wget
     yum: pkg=wget state=latest
@@ -40,13 +42,13 @@
   - name: Get KEYS
     get_url: dest=/opt/KEYS url=http://www.apache.org/dist/cloudstack/KEYS
   - name: Get CloudStack
-    get_url: dest=/opt/cs.tar.bz2 url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2 
+    get_url: dest=/opt/cs.tar.bz2 url=http://www.apache.org/dist/cloudstack/releases/{{acs_ver}}/apache-cloudstack-{{acs_ver}}-src.tar.bz2 
   - name: Get md5
-    get_url: dest=/opt/cs.tar.bz2.md5 url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2.md5
+    get_url: dest=/opt/cs.tar.bz2.md5 url=http://www.apache.org/dist/cloudstack/releases/{{acs_ver}}/apache-cloudstack-{{acs_ver}}-src.tar.bz2.md5
   - name: Get sha
-    get_url: dest=/opt/cs.tar.bz2.sha256 url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2.sha
+    get_url: dest=/opt/cs.tar.bz2.sha256 url=http://www.apache.org/dist/cloudstack/releases/{{acs_ver}}/apache-cloudstack-{{acs_ver}}-src.tar.bz2.sha
   - name: Get sigs
-    get_url: dest=/opt/cs.tar.bz2.asc url=http://www.apache.org/dist/cloudstack/releases/4.2.0/apache-cloudstack-4.2.0-src.tar.bz2.asc
+    get_url: dest=/opt/cs.tar.bz2.asc url=http://www.apache.org/dist/cloudstack/releases/{{acs_ver}}/apache-cloudstack-{{acs_ver}}-src.tar.bz2.asc
   - name: import KEYS
     shell: gpg --import /opt/KEYS
   - name: verify sigs
@@ -57,9 +59,26 @@
 #  - name: verify sha256sum
 #    shell: chdir=/opt sha256sum -c ./cs.tar.bz2.sha256 
   - name: unpack CloudStack
-    action: command creates=/opt/apache-cloudstack chdir=/opt tar xjvf /opt/cs.tar.bz2
-    
-# TODO    
-#  - name: Get the noredist jars
-#  - name: Install the deps
-#  - name: run package.sh for nonoss
+    action: command creates=/opt/apache-cloudstack-{{acs_ver}}-src chdir=/opt tar xjvf /opt/cs.tar.bz2
+  - name: Get iControl.jar
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-iControl.jar url=http://zooi.widodh.nl/cloudstack/build-dep/cloud-iControl.jar
+  - name: Get manageontap.jar
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/manageontap.jar url=http://zooi.widodh.nl/cloudstack/build-dep/cloud-manageontap.jar
+  - name: Get VMware VIM.jar
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim.jar url=http://zooi.widodh.nl/cloudstack/build-dep/vmware-vim.jar
+  - name: get apputils.jar
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/apputils.jar url=http://zooi.widodh.nl/cloudstack/build-dep/vmware-apputils.jar
+  - name: get zip file of netscaler
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/ns.zip url=http://community.citrix.com/download/attachments/37847122/cloud-netscaler-jars.zip
+  - name: unzip netscaler jars
+    action: command creates=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar chdir=/opt/apache-cloudstack-{{acs_ver}}-src/deps unzip ./ns.zip 
+  - name: get vim25_51
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim25_51.jar url=https://s3.amazonaws.com/deps.cloudstack.org/vim25.jar
+  - name: Install the deps
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/deps ./install-non-oss.sh  
+  - name: build rpms
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/packaging/centos63 ./package.sh -p nonoss
+  - name: build repo
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/dist/rpmbuild/RPMS/ createrepo ./x86_64
+  - name: tarball creation 
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/dist/rpmbuild/RPMS/ tar -cjf /root/csyum.bz2 ./x86_64
