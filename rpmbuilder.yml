@@ -5,28 +5,21 @@
   vars:
     acs_ver: 4.2.0
   tasks:
-  - name: wget
-    yum: pkg=wget state=latest
-  - name: rpm-build
-    yum: pkg=rpm-build state=latest
-  - name: java-1.6.0-openjdk-devel
-    yum: pkg=java-1.6.0-openjdk-devel state=latest
-  - name: tomcat6
-    yum: pkg=tomcat6 state=latest
-  - name: screen
-    yum: pkg=screen state=latest
-  - name: vim-enhanced
-    yum: pkg=vim-enhanced state=latest
-  - name: gcc
-    yum: pkg=gcc state=latest
-  - name: genisoimage
-    yum: pkg=genisoimage state=latest
-  - name: ws-commons-util
-    yum: pkg=ws-commons-util state=latest
-  - name: glibc-devel
-    yum: pkg=glibc-devel state=latest
-  - name: MySQL-python
-    yum: pkg=MySQL-python state=latest
+  - name: Install deps and niceties
+    yum: name={{ list }} state=latest
+    with_items:
+     - wget
+     - rpm-build
+     - java-1.6.0-openjdk-devel
+     - tomcat6
+     - screen
+     - vim-enhanced
+     - gcc
+     - genisoimage
+     - ws-commons-util
+     - glibc-devel
+     - MySQL-python
+
 # Maven installation section
   - name: Create /opt dir
     file: path=/opt state=directory
