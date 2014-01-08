@@ -1,37 +1,34 @@
 ---
-- hosts: rpmbuilders
+- hosts: debbuilders
   gather_facts: no
-  user: root
+  user: ubuntu
+  sudo: true
   vars:
     acs_ver: 4.2.1
     acs_url: https://dist.apache.org/repos/dist/release/cloudstack/releases
   tasks:
+  - name: add maven3 ppa
+    action: command /usr/bin/add-apt-repository -y ppa:natecarlson/maven3
+  - name: update cache
+    apt: update_cache=yes
   - name: Install deps and niceties
-    yum: name=$item state=latest
+    apt: name=$item state=latest
     with_items:
      - wget
-     - rpm-build
-     - java-1.6.0-openjdk-devel
-     - tomcat6
-     - screen
-     - vim-enhanced
-     - gcc
-     - genisoimage
-     - ws-commons-util
-     - glibc-devel
-     - MySQL-python
-
-# Maven installation section
-  - name: Create /opt dir
-    file: path=/opt state=directory
-  - name: download Maven3
-    get_url: dest=/opt/maven3.tar.gz url=http://mirror.catn.com/pub/apache/maven/maven-3/3.1.1/binaries/apache-maven-3.1.1-bin.tar.gz
-  - name: Unpack Maven3
-    action: command creates=/opt/maven chdir=/opt tar zxvf /opt/maven3.tar.gz
+     - dpkg
+     - ant
+     - debhelper
+     - openjdk-6-jdk 
+     - tomcat6 
+     - libws-commons-util-java 
+     - genisoimage 
+     - python-mysqldb 
+     - libcommons-codec-java 
+     - libcommons-httpclient-java 
+     - liblog4j1.2-java 
+     - maven3
   - name: Create Maven3 directory link
-    file: path=/opt/maven src=/opt/apache-maven-3.1.1 state=link
-  - name: Set mvn link
-    action: command update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 1 
+    file: path=/usr/bin/mvn src=/usr/bin/mvn3 state=link
 # CloudStack source tarball download and manipulation
   - name: Get KEYS
     get_url: dest=/opt/KEYS url=http://www.apache.org/dist/cloudstack/KEYS
@@ -62,6 +59,10 @@
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim.jar url=http://zooi.widodh.nl/cloudstack/build-dep/vmware-vim.jar
   - name: get apputils.jar
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/apputils.jar url=http://zooi.widodh.nl/cloudstack/build-dep/vmware-apputils.jar
+  - name: get netscaler jar 1
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler-sdx.jar
+  - name: get netscaler jar 2 
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler-sdx.jar
 #  - name: get zip file of netscaler
 #    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/ns.zip url=http://community.citrix.com/download/attachments/37847122/cloud-netscaler-jars.zip
 #  - name: unzip netscaler jars
@@ -70,9 +71,7 @@
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim25_51.jar url=https://s3.amazonaws.com/deps.cloudstack.org/vim25.jar
   - name: Install the deps
     action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/deps ./install-non-oss.sh  
-  - name: build rpms
-    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/packaging/centos63 ./package.sh -p nonoss
-  - name: build repo
-    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/dist/rpmbuild/RPMS/ createrepo ./x86_64
-  - name: tarball creation 
-    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/dist/rpmbuild/RPMS/ tar -cjf /root/csyum.bz2 ./x86_64
+  - name: run maven to get deps
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/ mvn3 -P deps
+  - name: build debs
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/ dpkg-buildpackage -uc -us 
