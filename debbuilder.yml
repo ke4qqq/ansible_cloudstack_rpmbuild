@@ -63,10 +63,6 @@
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler-sdx.jar
   - name: get netscaler jar 2 
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler-sdx.jar
-#  - name: get zip file of netscaler
-#    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/ns.zip url=http://community.citrix.com/download/attachments/37847122/cloud-netscaler-jars.zip
-#  - name: unzip netscaler jars
-#    action: command creates=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar chdir=/opt/apache-cloudstack-{{acs_ver}}-src/deps unzip ./ns.zip 
   - name: get vim25_51
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim25_51.jar url=https://s3.amazonaws.com/deps.cloudstack.org/vim25.jar
   - name: Install the deps
@@ -74,4 +70,14 @@
   - name: run maven to get deps
     action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/ mvn3 -P deps
   - name: build debs
-    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/ dpkg-buildpackage -uc -us 
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/ dpkg-buildpackage -uc -us
+
+#TODO:
+# What isn't yet done: 
+# Figure out how to build nonoss debs. Is this a dpkg alternative?
+# Make changes for 4.3 - s/nonoss/noredist/g
+# Building a deb repo
+# Taring the repo up
+# pushing the content to S3 
+
+  
