@@ -29,6 +29,10 @@
      - maven3
   - name: Create Maven3 directory link
     file: path=/usr/bin/mvn src=/usr/bin/mvn3 state=link
+  - name: create .m2 directory
+    file: path=/root/.m2 state=directory
+  - name: Copy in settings.xml to use ACS-specific Archiva repo
+    template: src=settings.xml dest=/root/.m2/settings.xml
 # CloudStack source tarball download and manipulation
   - name: Get KEYS
     get_url: dest=/opt/KEYS url=http://www.apache.org/dist/cloudstack/KEYS

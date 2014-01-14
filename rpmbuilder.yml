@@ -32,6 +32,10 @@
     file: path=/opt/maven src=/opt/apache-maven-3.1.1 state=link
   - name: Set mvn link
     action: command update-alternatives --install /usr/bin/mvn mvn /opt/maven/bin/mvn 1 
+  - name: create .m2 directory
+    file: path=/root/.m2 state=directory
+  - name: Copy in settings.xml to use ACS-specific Archiva repo
+    template: src=settings.xml dest=/root/.m2/settings.xml 
 # CloudStack source tarball download and manipulation
   - name: Get KEYS
     get_url: dest=/opt/KEYS url=http://www.apache.org/dist/cloudstack/KEYS
