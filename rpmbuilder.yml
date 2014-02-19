@@ -3,7 +3,7 @@
   gather_facts: no
   user: root
   vars:
-    acs_ver: 4.2.1
+    acs_ver: 4.3.0
     acs_url: https://dist.apache.org/repos/dist/release/cloudstack/releases
   tasks:
   - name: Install deps and niceties
@@ -66,16 +66,16 @@
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim.jar url=http://zooi.widodh.nl/cloudstack/build-dep/vmware-vim.jar
   - name: get apputils.jar
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/apputils.jar url=http://zooi.widodh.nl/cloudstack/build-dep/vmware-apputils.jar
-#  - name: get zip file of netscaler
-#    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/ns.zip url=http://community.citrix.com/download/attachments/37847122/cloud-netscaler-jars.zip
-#  - name: unzip netscaler jars
-#    action: command creates=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar chdir=/opt/apache-cloudstack-{{acs_ver}}-src/deps unzip ./ns.zip 
+  - name: get netscaler jar 1
+    get_url: dest=/top/apache-cloudstack-{{acs-ver}}-src/deps/cloud-netscaler.jar  url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler.jar
+  - name: get netscaler jar 2
+    get_url: dest=/opt/apache-cloudstack-{{acs-ver}}-src/deps/cloud-netscaler-sdk.jar  url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler-sdx.jar
   - name: get vim25_51
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim25_51.jar url=https://s3.amazonaws.com/deps.cloudstack.org/vim25.jar
   - name: Install the deps
     action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/deps ./install-non-oss.sh  
   - name: build rpms
-    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/packaging/centos63 ./package.sh -p nonoss
+    action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/packaging/centos63 ./package.sh -p noredist
   - name: build repo
     action: command chdir=/opt/apache-cloudstack-{{acs_ver}}-src/dist/rpmbuild/RPMS/ createrepo ./x86_64
   - name: tarball creation 
