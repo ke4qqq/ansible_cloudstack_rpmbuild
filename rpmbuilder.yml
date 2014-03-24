@@ -69,7 +69,7 @@
   - name: get netscaler jar 1
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler.jar  url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler.jar
   - name: get netscaler jar 2
-    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler-sdk.jar  url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler-sdx.jar
+    get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/cloud-netscaler-sdx.jar  url=https://s3.amazonaws.com/deps.cloudstack.org/cloud-netscaler-sdx.jar
   - name: get vim25_51
     get_url: dest=/opt/apache-cloudstack-{{acs_ver}}-src/deps/vim25_51.jar url=https://s3.amazonaws.com/deps.cloudstack.org/vim25.jar
   - name: Install the deps
