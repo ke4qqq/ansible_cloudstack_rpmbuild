@@ -5,6 +5,7 @@ Ansible playbooks for configuring a host to build CloudStack RPMs or Debs.
 
 Rationale
 =========
+
 I typically do a number of tests when Apache CloudStack gets close to release, and one of those is ensuring
 that RPMs can be built. (there is a CI job that does this as well). I could build these on a my local machine, but 
 there is all manner of cruft and potential assumptions on my local machines that a non-CloudStack developer might 
