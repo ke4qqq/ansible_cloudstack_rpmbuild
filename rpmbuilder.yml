@@ -20,6 +20,7 @@
      - ws-commons-util
      - glibc-devel
      - MySQL-python
+     - libselinux-python
 
 # Maven installation section
   - name: Create /opt dir
