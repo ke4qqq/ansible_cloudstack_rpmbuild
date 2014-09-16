@@ -21,6 +21,7 @@
      - glibc-devel
      - MySQL-python
      - libselinux-python
+     - createrepo
 
 # Maven installation section
   - name: Create /opt dir
